@@ -1,0 +1,1 @@
+create table spread(id int primary key auto_increment, currency varchar(30), percentage varchar(30));
