@@ -47,7 +47,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
 		return createCurrencyExchangeResponse(from, to, exchange);
 	}
-
+	@Transactional
 	private void updateCurrencyRequestCounter(Rates currencyExchange) {
 		if (currencyExchange != null) {
 			currencyExchange.setCounter(currencyExchange.getCounter() + 1);
