@@ -31,6 +31,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
 	private ModelMapper mapper = new ModelMapper();
 
+	@Transactional
 	@Override
 	public CurrencyExchangeResponse currencyExchange(String from, String to, String date) throws ParseException {
 		Rates fromCurrencyExchange = retreiveRateByNameAndDate(from, date);
@@ -47,7 +48,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
 		return createCurrencyExchangeResponse(from, to, exchange);
 	}
-	@Transactional
+
 	private void updateCurrencyRequestCounter(Rates currencyExchange) {
 		if (currencyExchange != null) {
 			currencyExchange.setCounter(currencyExchange.getCounter() + 1);
@@ -84,6 +85,7 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 		return ratesRepository.findByNameAndDate(from, date);
 	}
 
+	@Transactional
 	@Override
 	public RatesDTO updateRates(RatesDTO ratesDTO) throws RatesNotFoundException, ParseException {
 
@@ -100,7 +102,6 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 		return mapper.map(ratesDTO, Rates.class);
 	}
 
-	@Transactional
 	private Rates updateRatesValueAndDateWithoutEffectingCounter(Rates rates)
 			throws RatesNotFoundException, ParseException {
 		Rates retrievedRates = ratesRepository.findByName(rates.getName());
