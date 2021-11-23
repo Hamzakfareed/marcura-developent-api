@@ -83,12 +83,15 @@ verify by : http://localhost:8080/exchange?from={from}&{to}=USD&date={date}
 	
 <h4>GET : http://localhost:8080/fixer</h4>
 	<h2>NOTE: 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First you need to fetch data from fixerio either http://localhost:8080/fixer or using scheduler.
-	FixerIO is implemented using RestApi and also scheduler.
+	FixerIO is implemented using RestApi and also scheduler.</h2>
+	
+
+Cors are enabled for http://localhost:8080
 	
 	
 	
 <h3>NEED TO BE DONE:</h3>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	User input validation<br>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	User Authentication
-		
+	
 	
