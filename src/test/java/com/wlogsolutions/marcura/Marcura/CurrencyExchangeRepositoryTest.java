@@ -3,6 +3,8 @@ package com.wlogsolutions.marcura.Marcura;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
@@ -11,17 +13,18 @@ import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.wlogsolutions.marcura.exceptions.RatesNotFoundException;
-import com.wlogsolutions.marcura.models.CurrencyExchange;
-import com.wlogsolutions.marcura.models.dto.RatesDTO;
-import com.wlogsolutions.marcura.repositories.CurrencyExchangeRepository;
-import com.wlogsolutions.marcura.repositories.RatesRepository;
-import com.wlogsolutions.marcura.response.CurrencyExchangeResponse;
-import com.wlogsolutions.marcura.services.CurrencyExchangeService;
+import marcura.development.api.models.Rates;
+import marcura.development.api.models.Spread;
+import marcura.development.api.models.dto.CurrencyExchangeResponse;
+import marcura.development.api.repositories.CurrencyExchangeRepository;
+import marcura.development.api.repositories.RatesRepository;
+import marcura.development.api.services.CurrencyExchangeService;
+import marcura.development.api.services.implementations.CurrencyExchangeServiceImpl;
 
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -29,11 +32,7 @@ import com.wlogsolutions.marcura.services.CurrencyExchangeService;
 @Transactional
 public class CurrencyExchangeRepositoryTest {
 
-	private static final boolean SUCCESS = true;
-	private static final long ID = 1L;
-	private static final String CURRENCY = "EUR";
-	private static final String DATE = "2021-11-17";
-
+	private static final String DATE = "2021-11-23";
 	private static final String TO_CURRENCY = "USD";
 	private static final String FROM_CURRENCY = "EUR";
 	private static final double EXCHANGE_RATE = 1.45;
@@ -64,37 +63,50 @@ public class CurrencyExchangeRepositoryTest {
 		assertEquals(expected.getFrom(), actual.getFrom());
 		assertEquals(expected.getTo(), actual.getTo());
 	}
-	
+
 	@Test
-	void test_currencyRatesUpdateWithoutZero() throws RatesNotFoundException, ParseException {
-		RatesDTO expected = createRatesDTO_for_Update();
-		when(currencyExchangeService.updateRates(expected)).thenReturn(expected);
-		
-		RatesDTO actual =currencyExchangeService.updateRates(expected);
-		assertRatesDTO(expected, actual);
+	void testPrivateMethod() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+
+		Rates fromRates = createRates("EUR", new BigDecimal(1.0));
+		Rates toRates = createRates("USD", new BigDecimal(1.13));
+		Spread fromSpread = createSpread("EUR", new BigDecimal(0.00));
+		Spread toSpread = createSpread("USD", new BigDecimal(2.75));
+		BigDecimal actual = callToCurrencyExchangeUsingFrom_to_fromSpread_andToSpread(fromRates, toRates, fromSpread,
+				toSpread);
+
+		BigDecimal expected = BigDecimal.valueOf(1.1074);
+		assertBigDecimalValues(expected, actual);
+
 	}
 
-	private void assertRatesDTO(RatesDTO expected, RatesDTO actual) {
-		assertEquals(expected.getName(), actual.getName());
-		assertEquals(expected.getValue(),actual.getValue());
-		assertEquals(expected.getDate(), actual.getDate());
+	private void assertBigDecimalValues(BigDecimal expected, BigDecimal actual) {
+		assertEquals(expected, actual);
 	}
 
-	private RatesDTO createRatesDTO_for_Update() {
-		RatesDTO expected = new RatesDTO();
-		expected.setName(FROM_CURRENCY);
-		expected.setValue("1.1");
-		expected.setDate(createCurrencyExchange().getDate());
-		return expected;
+	private BigDecimal callToCurrencyExchangeUsingFrom_to_fromSpread_andToSpread(Rates fromRates, Rates toRates,
+			Spread fromSpread, Spread toSpread)
+			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		CurrencyExchangeServiceImpl service = new CurrencyExchangeServiceImpl();
+		Method method = CurrencyExchangeServiceImpl.class.getDeclaredMethod(
+				"currencyExchangeUsingFrom_to_fromSpread_andToSpread", Rates.class, Rates.class, Spread.class,
+				Spread.class);
+		method.setAccessible(true);
+		BigDecimal result = (BigDecimal) method.invoke(service, fromRates, toRates, fromSpread, toSpread);
+		return result;
 	}
 
-	private CurrencyExchange createCurrencyExchange() {
-		CurrencyExchange currencyExchange = new CurrencyExchange();
-		currencyExchange.setBase(CURRENCY);
-		currencyExchange.setDate(DATE);
-		currencyExchange.setId(ID);
-		currencyExchange.setSuccess(SUCCESS);
-		return currencyExchange;
+	private Spread createSpread(String currency, BigDecimal percentage) {
+		Spread spread = new Spread();
+		spread.setCurrency(currency);
+		spread.setPercentage(percentage);
+		return spread;
+	}
+
+	private Rates createRates(String currency, BigDecimal value) {
+		Rates rates = new Rates(currency, value);
+
+		return rates;
 	}
 
 }
