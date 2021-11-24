@@ -1,4 +1,4 @@
-package com.wlogsolutions.marcura.Marcura;
+ package marcura.development.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -75,7 +75,7 @@ public class CurrencyExchangeRepositoryTest {
 		BigDecimal actual = callToCurrencyExchangeUsingFrom_to_fromSpread_andToSpread(fromRates, toRates, fromSpread,
 				toSpread);
 
-		BigDecimal expected = BigDecimal.valueOf(1.1074);
+		BigDecimal expected = BigDecimal.valueOf(1.0989);
 		assertBigDecimalValues(expected, actual);
 
 	}

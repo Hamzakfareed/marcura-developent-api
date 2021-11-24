@@ -78,10 +78,11 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 	private BigDecimal currencyExchangeUsingFrom_to_fromSpread_andToSpread(Rates fromCurrencyExchange,
 			Rates toCurrencyExchange, Spread fromCurrencySpread, Spread toCurrencySpread) {
 
+		
 		return toCurrencyExchange.getValue().divide(fromCurrencyExchange.getValue())
 				.multiply(BigDecimal.valueOf(100)
-						.subtract(BigDecimal.valueOf(Math.max(fromCurrencySpread.getPercentage().intValue(),
-								toCurrencySpread.getPercentage().intValue())))
+						.subtract(BigDecimal.valueOf(Math.max(fromCurrencySpread.getPercentage().doubleValue(),
+								toCurrencySpread.getPercentage().doubleValue())))
 						.divide(BigDecimal.valueOf(100)))
 				.setScale(4, RoundingMode.HALF_UP);
 	}
